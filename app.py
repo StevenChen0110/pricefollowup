@@ -1,8 +1,26 @@
+import subprocess
+import sys
+import os
 import streamlit as st
 import plotly.graph_objects as go
 import plotly.express as px
 import pandas as pd
 from datetime import datetime
+
+# Install Playwright browser once on cold start
+@st.cache_resource(show_spinner=False)
+def install_playwright():
+    subprocess.run(
+        [sys.executable, "-m", "playwright", "install", "chromium"],
+        capture_output=True
+    )
+
+install_playwright()
+
+# Load secrets into env vars (Streamlit Cloud)
+for key in ["ANTHROPIC_API_KEY", "OPENAI_API_KEY", "AI_PROVIDER"]:
+    if key in st.secrets:
+        os.environ[key] = st.secrets[key]
 
 import database as db
 import scraper
