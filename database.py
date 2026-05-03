@@ -2,7 +2,9 @@ import sqlite3
 from contextlib import contextmanager
 from pathlib import Path
 
-DB_PATH = Path(__file__).parent / "pricewise.db"
+import os
+_default_path = Path(__file__).parent / "pricewise.db"
+DB_PATH = Path(os.environ.get("DB_PATH", str(_default_path)))
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS products (

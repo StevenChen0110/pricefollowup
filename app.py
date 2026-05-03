@@ -8,19 +8,27 @@ import pandas as pd
 from datetime import datetime
 
 # Install Playwright browser once on cold start
-@st.cache_resource(show_spinner=False)
+@st.cache_resource(show_spinner="正在初始化爬蟲引擎…")
 def install_playwright():
-    subprocess.run(
+    result = subprocess.run(
         [sys.executable, "-m", "playwright", "install", "chromium"],
-        capture_output=True
+        capture_output=True, text=True
     )
+    return result.returncode
 
-install_playwright()
+try:
+    install_playwright()
+except Exception as e:
+    st.error(f"Playwright 初始化失敗：{e}")
+    st.stop()
 
 # Load secrets into env vars (Streamlit Cloud)
-for key in ["ANTHROPIC_API_KEY", "OPENAI_API_KEY", "AI_PROVIDER"]:
-    if key in st.secrets:
-        os.environ[key] = st.secrets[key]
+try:
+    for key in ["ANTHROPIC_API_KEY", "OPENAI_API_KEY", "AI_PROVIDER"]:
+        if key in st.secrets:
+            os.environ[key] = st.secrets[key]
+except Exception:
+    pass  # local dev — env vars set directly
 
 import database as db
 import scraper
